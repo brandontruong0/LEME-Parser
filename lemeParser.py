@@ -1,3 +1,5 @@
+import os
+import shutil
 import openpyxl
 import xml.etree.ElementTree as ET
 import docx
@@ -10,8 +12,15 @@ startingRow = 7412
 
 def main():
     try:
+        if os.path.isfile('Result.docx'):
+            os.remove('Result.docx')
+        shutil.copy('src1','Result.docx')
+    except OSError:
+        print('Result.docx error')
+        exit(1)
+    try:
         wb = openpyxl.load_workbook('target.xlsx')
-        ws = wb.get_sheet_by_name('VPHiddenSheet')
+        ws = wb['VPHiddenSheet']
     except OSError:
         print("target.xlsx not found")
         exit(1)
@@ -65,7 +74,8 @@ def main():
     cell_settings[:] = [item[-1] for item in new_data]
 
     # Write to Word 2010 Document
-    document = docx.Document()
+    # document = docx.Document()
+    document = docx.Document('Result.docx')
     # document.sections[-1].orientation = WD_ORIENT.LANDSCAPE
 
     # Create Cell Settings table with header
@@ -121,4 +131,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        print('Error!', e)
+        print('Press enter to exit (and fix the problem)')
+        input()
